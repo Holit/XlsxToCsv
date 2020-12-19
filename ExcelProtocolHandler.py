@@ -3,37 +3,6 @@ import csv
 import sys
 import os
 
-csv_file_name = 'excel_to_csv.csv'
-
-def read_excel(excel_name):
-  #读取Excel文件每一行内容到一个列表中
-  workbook = xlrd.open_workbook(excel_name)
-  table = workbook.sheet_by_index(0) #读取第一个sheet
-  nrows = table.nrows
-  ncols = table.ncols
-  # 跳过表头，从第一行数据开始读
-  for rows_read in range(1,nrows):
-    #每行的所有单元格内容组成一个列表
-    row_value = []
-    for cols_read in range(ncols):
-      #获取单元格数据类型
-      ctype = table.cell(rows_read, cols_read).ctype
-      #获取单元格数据
-      nu_str = table.cell(rows_read, cols_read).value
-      #判断返回类型
-      # 0 empty,1 string, 2 number(都是浮点), 3 date, 4 boolean, 5 error
-      #是2（浮点数）的要改为int
-      if ctype == 2:
-        nu_str = int(nu_str)
-      row_value.append(nu_str)
-    yield row_value
- 
-def xlsx_to_csv(csv_file_name,row_value):
-  #生成csv文件
-  with open(csv_file_name, 'a', encoding='utf-8',newline='') as f: #newline=''不加会多空行
-    write = csv.writer(f)
-    write.writerow(row_value)
-
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         print("illegal argument, try again.")
@@ -76,11 +45,36 @@ usage: eph [-h|-c|-p|--help|--csv|--print] {filename}
             #exit(-5)
         else:
             try:
-                #creating csv file path
-                csv_file_name = os.path.splitext(sys.argv[2])[0] + ".csv"
-                for row_value in read_excel(sys.argv[2]):
-                  xlsx_to_csv(csv_file_name,row_value)
-                print('Succeed \n You may need to use excel to trans encoding from utf-8 to utf-8 BOM')
+                workbook = xlrd.open_workbook(sys.argv[2])
+                i = 1
+                for table in workbook.sheets():
+                    csv_file_name = os.path.splitext(sys.argv[2])[0]
+                    csv_file_name = csv_file_name + " - " +  table.name 
+                    csv_file_name += ".csv"
+                    if(os.path.exists(csv_file_name)):
+                        os.remove(csv_file_name)
+                    nrows = table.nrows
+                    ncols = table.ncols
+                    # 跳过表头，从第一行数据开始读
+                    for rows_read in range(1,nrows):
+                        #每行的所有单元格内容组成一个列表
+                        row_value = []
+                        for cols_read in range(ncols):
+                            #获取单元格数据类型
+                            ctype = table.cell(rows_read, cols_read).ctype
+                            #获取单元格数据
+                            nu_str = table.cell(rows_read, cols_read).value
+                            #判断返回类型
+                            # 0 empty,1 string, 2 number(都是浮点), 3 date, 4 boolean, 5 error
+                            #是2（浮点数）的要改为int
+                            if ctype == 2:
+                                nu_str = int(nu_str)
+                            row_value.append(nu_str)
+                        with open(csv_file_name, 'a', encoding='utf-8',newline='') as f: #newline=''不加会多空行
+                            write = csv.writer(f)
+                            write.writerow(row_value)
+                    i = i +1
+                print('Succeed, proceed ' + str(i) + ' sheets \n You may need to use excel to trans encoding from utf-8 to utf-8 BOM')
                 #exit(0)
             except Exception as e:
                 print("Unexcepted error occured: " + str(e))
