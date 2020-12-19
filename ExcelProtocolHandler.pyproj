@@ -12,7 +12,8 @@
     <Name>ExcelProtocolHandler</Name>
     <RootNamespace>ExcelProtocolHandler</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>--csv D:\副本执行情况汇总-高同学.xlsx</CommandLineArguments>
+    <CommandLineArguments>
+    </CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
